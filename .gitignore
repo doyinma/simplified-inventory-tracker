@@ -1,0 +1,28 @@
+# Node modules
+/frontend/node_modules
+
+# Laravel dependencies
+/backend/vendor
+
+# Composer PHAR
+/composer.phar
+
+# Logs
+*.log
+
+# Docker
+/docker-compose.override.yml
+/docker-compose.yml
+*.env
+
+# .env files for sensitive information
+/backend/.env
+/frontend/.env
+
+# Vite files
+/frontend/.vite
+/frontend/dist
+
+# OS specific files
+.DS_Store
+Thumbs.db
