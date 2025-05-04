@@ -247,6 +247,3 @@ const slides = [
   </div>
 </template>
 
-<style scoped>
-/* Scoped styles if needed */
-</style>
