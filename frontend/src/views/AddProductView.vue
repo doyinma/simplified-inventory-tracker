@@ -11,12 +11,48 @@ const form = ref({
   images: [],
 })
 
+// Notification message variables
+const message = ref('')
+const messageType = ref('')
+
 function handleImageUpload(event) {
   form.value.images = Array.from(event.target.files)
 }
 
-function submitForm() {
-  console.log('Form Submitted:', form.value)
+async function submitForm() {
+  const formData = new FormData()
+  formData.append('sku', form.value.sku)
+  formData.append('name', form.value.name)
+  formData.append('cost_price', form.value.costPrice)
+  formData.append('selling_price', form.value.sellingPrice)
+  formData.append('stock', form.value.stock)
+
+  form.value.images.forEach((file, index) => {
+    formData.append('images[]', file)
+  })
+
+  try {
+    const response = await fetch('http://localhost:5000/products', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('Error:', error)
+      message.value = 'Failed to add product.'
+      messageType.value = 'error'
+    } else {
+      const data = await response.json()
+      console.log('Product added:', data)
+      message.value = 'Product added successfully!'
+      messageType.value = 'success'
+    }
+  } catch (error) {
+    console.error('Error submitting form:', error)
+    message.value = 'An error occurred.'
+    messageType.value = 'error'
+  }
 }
 </script>
 
@@ -24,6 +60,14 @@ function submitForm() {
   <DashboardLayout>
     <div class="space-y-4 w-full sm:max-w-xl bg-white p-4 sm:p-6 rounded shadow mx-auto">
       <h1 class="text-2xl font-bold mb-6">Add New Product</h1>
+
+      <!-- Notification Message -->
+      <div v-if="message" :class="{
+        'bg-green-100 text-green-800': messageType === 'success',
+        'bg-red-100 text-red-800': messageType === 'error'
+      }" class="p-4 rounded mb-4">
+        <strong>{{ message }}</strong>
+      </div>
 
       <form class="space-y-4 w-full sm:max-w-xl bg-white p-4 sm:p-6 rounded shadow mx-auto">
         <div>
