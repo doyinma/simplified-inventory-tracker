@@ -1,31 +1,51 @@
 <script setup>
-import { ref } from 'vue'
-import DashboardLayout from '@/layouts/DashboardLayout.vue'
+import { ref, onMounted } from 'vue';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { RouterLink } from 'vue-router';
 
-const products = ref([
-  {
-    id: 1,
-    sku: 'PRD-001',
-    name: 'Tomato Seeds',
-    stock: 120,
-    sellingPrice: 8.5
-  },
-  {
-    id: 2,
-    sku: 'PRD-002',
-    name: 'Fertilizer A1',
-    stock: 40,
-    sellingPrice: 25
-  },
-  {
-    id: 3,
-    sku: 'PRD-003',
-    name: 'Maize Hybrid',
-    stock: 15,
-    sellingPrice: 14.99
+// Declare the ref for products
+const products = ref([]);
+
+// Fetch the products when the component is mounted
+const fetchProducts = async () => {
+  try {
+    const response = await fetch('https://oladoyinfagbohun.com/inventory-tracker/api/products');
+    const data = await response.json();
+    if (Array.isArray(data)) {
+      products.value = data; // Populate the products list
+    } else {
+      console.error('Failed to load products:', data.error);
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
   }
-])
+};
+
+const deleteProduct = async (id) => {
+  const confirmDelete = confirm('Are you sure you want to delete this product? This action cannot be undone.');
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`https://oladoyinfagbohun.com/inventory-tracker/api/products/${id}`, {
+      method: 'DELETE'
+    });
+    const result = await response.json();
+    if (response.ok) {
+      alert(result.message || 'Product deleted successfully.');
+      fetchProducts(); // Refresh list
+    } else {
+      alert(result.error || 'Failed to delete product.');
+    }
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    alert('An error occurred while deleting the product.');
+  }
+};
+
+// Call the fetchProducts function when the component is mounted
+onMounted(() => {
+  fetchProducts();
+});
 </script>
 
 <template>
@@ -50,7 +70,7 @@ const products = ref([
             <td class="px-4 py-3">{{ product.sku }}</td>
             <td class="px-4 py-3">{{ product.name }}</td>
             <td class="px-4 py-3">{{ product.stock }}</td>
-            <td class="px-4 py-3">${{ product.sellingPrice.toFixed(2) }}</td>
+            <td class="px-4 py-3">${{ parseFloat(product.selling_price).toFixed(2) }}</td>
             <td class="px-4 py-3 space-x-2">
               <router-link
                 :to="`/dashboard/products/${product.id}/edit`"
@@ -58,7 +78,12 @@ const products = ref([
               >
                 Edit
               </router-link>
-              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Delete</button>
+              <button
+                @click="deleteProduct(product.id)"
+                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+              >
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>

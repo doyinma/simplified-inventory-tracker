@@ -3,6 +3,8 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 const slides = [
   {
@@ -30,6 +32,27 @@ const slides = [
     buttonText: 'Try out the Demo',
   },
 ];
+
+const featuredProducts = ref([])
+
+const shuffleArray = (arr) => {
+  return arr
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value)
+}
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('https://oladoyinfagbohun.com/inventory-tracker/api/products')
+    const products = Array.isArray(response.data) ? response.data : []
+
+    // Ensure numeric values and valid structure if needed
+    featuredProducts.value = shuffleArray(products).slice(0, 10)
+  } catch (error) {
+    console.error('Error fetching featured products:', error)
+  }
+})
 </script>
 
 <template>
@@ -125,62 +148,31 @@ const slides = [
     <!-- Featured Products Section -->
     <section id="featured" class="py-20 bg-gray-50">
       <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-
-        <!-- Headline -->
         <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">Featured Products</h2>
         <p class="text-gray-600 text-center mb-10">Explore our top picks designed to keep your inventory sharp and your business smarter.</p>
 
-        <!-- Scrollable carousel -->
         <div class="flex overflow-x-auto space-x-6 pb-4 snap-x snap-mandatory">
-
-          <!-- Product Card -->
-          <div class="flex-shrink-0 snap-center w-64 h-80 relative rounded-2xl overflow-hidden shadow-lg group">
-            <img src="/hero1.jpg" alt="Product 2" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-
+          <div
+            v-for="product in featuredProducts"
+            :key="product.id"
+            class="flex-shrink-0 snap-center w-64 h-80 relative rounded-2xl overflow-hidden shadow-lg group"
+          >
+            <img
+              :src="product.image_paths || '/fallback.jpg'"
+              :alt="product.name"
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
             <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end p-4">
-              <h3 class="text-white text-lg font-semibold mb-2">Smart Inventory Tags</h3>
-              <a href="#" class="inline-block text-sm text-white bg-[#6F00AC] hover:bg-[#521176] px-4 py-1 rounded">View</a>
+              <h3 class="text-white text-lg font-semibold mb-2 truncate">{{ product.name }}</h3>
+              <a
+                :href="`/dashboard/products`"
+                class="inline-block text-sm text-white bg-[#6F00AC] hover:bg-[#521176] px-4 py-1 rounded"
+              >
+                View
+              </a>
             </div>
           </div>
-          <!-- Product Card -->
-          <div class="flex-shrink-0 snap-center w-64 h-80 relative rounded-2xl overflow-hidden shadow-lg group">
-            <img src="/hero2.jpg" alt="Product 2" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-
-            <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end p-4">
-              <h3 class="text-white text-lg font-semibold mb-2">Smart Inventory Tags</h3>
-              <a href="#" class="inline-block text-sm text-white bg-[#6F00AC] hover:bg-[#521176] px-4 py-1 rounded">View</a>
-            </div>
-          </div>
-          <!-- Product Card -->
-          <div class="flex-shrink-0 snap-center w-64 h-80 relative rounded-2xl overflow-hidden shadow-lg group">
-            <img src="/hero3.jpg" alt="Product 2" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-
-            <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end p-4">
-              <h3 class="text-white text-lg font-semibold mb-2">Smart Inventory Tags</h3>
-              <a href="#" class="inline-block text-sm text-white bg-[#6F00AC] hover:bg-[#521176] px-4 py-1 rounded">View</a>
-            </div>
-          </div>
-          <!-- Product Card -->
-          <div class="flex-shrink-0 snap-center w-64 h-80 relative rounded-2xl overflow-hidden shadow-lg group">
-            <img src="/hero1.jpg" alt="Product 2" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-
-            <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end p-4">
-              <h3 class="text-white text-lg font-semibold mb-2">Smart Inventory Tags</h3>
-              <a href="#" class="inline-block text-sm text-white bg-[#6F00AC] hover:bg-[#521176] px-4 py-1 rounded">View</a>
-            </div>
-          </div>
-          <!-- Product Card -->
-          <div class="flex-shrink-0 snap-center w-64 h-80 relative rounded-2xl overflow-hidden shadow-lg group">
-            <img src="/hero2.jpg" alt="Product 2" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-
-            <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end p-4">
-              <h3 class="text-white text-lg font-semibold mb-2">Smart Inventory Tags</h3>
-              <a href="#" class="inline-block text-sm text-white bg-[#6F00AC] hover:bg-[#521176] px-4 py-1 rounded">View</a>
-            </div>
-          </div>
-
         </div>
-
       </div>
     </section>
 

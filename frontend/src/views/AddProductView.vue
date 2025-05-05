@@ -32,7 +32,7 @@ async function submitForm() {
   })
 
   try {
-    const response = await fetch('http://localhost:5000/products', {
+    const response = await fetch('https://oladoyinfagbohun.com/inventory-tracker/api/products', {
       method: 'POST',
       body: formData,
     })
@@ -47,6 +47,16 @@ async function submitForm() {
       console.log('Product added:', data)
       message.value = 'Product added successfully!'
       messageType.value = 'success'
+
+      // Clear the form after successful submission
+      form.value = {
+        sku: '',
+        name: '',
+        costPrice: null,
+        sellingPrice: null,
+        stock: null,
+        images: [],
+      }
     }
   } catch (error) {
     console.error('Error submitting form:', error)
